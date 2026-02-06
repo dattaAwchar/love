@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Valentine Week</title>
+    <style>
+        /* General Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(115deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            max-width: 90%;
+            width: 400px;
+            min-height: 500px; 
+            position: relative; /* Crucial for keeping the No button inside */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Title Style */
+        h1 { 
+            font-size: 2rem; 
+            margin-bottom: 10px; 
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+            min-height: 60px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Areas */
+        #lockedArea { display: flex; flex-direction: column; align-items: center; animation: fadeIn 1s ease; width: 100%; }
+        #contentArea { display: none; flex-direction: column; align-items: center; animation: slideUp 0.8s ease; width: 100%; }
+
+        /* Message Box */
+        .message-box {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* Letter Box */
+        .letter-box {
+            display: none;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+            max-height: 350px; 
+            overflow-y: auto;
+            animation: fadeIn 1s ease;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .letter-box::-webkit-scrollbar { display: none; }
+
+        .emoji-icon { font-size: 4rem; margin-bottom: 15px; display: block; }
+
+        /* Timer Box */
+        .timer-box {
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-top: auto; 
+            opacity: 0; 
+            transition: opacity 1s ease;
+            margin-bottom: 10px;
+        }
+
+        /* Standard Button */
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+            background: #fff;
+            color: #ff4757;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover { transform: scale(1.05); }
+
+        #readLetterBtn {
+            display: none;
+            background: #ff4757;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* --- YES/NO BUTTON GROUP --- */
+        .btn-group { 
+            display: none; 
+            gap: 20px; 
+            justify-content: center; 
+            align-items: center; 
+            margin-top: 20px; 
+            z-index: 100;
+            width: 100%;
+            flex-wrap: wrap; 
+        }
+        
+        .btn-yes { background: #2ecc71; color: white; padding: 15px 40px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; transition: font-size 0.3s ease, padding 0.3s ease; font-weight: bold; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
+        
+        .btn-no { background: #ff4757; color: white; padding: 15px 40px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s; font-weight: bold; box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* HEARTS */
+        .heart {
+            position: absolute;
+            background-color: #ff47c2; 
+            width: 20px;
+            height: 20px;
+            transform: rotate(45deg);
+            animation: float 10s infinite linear;
+            z-index: 1;
+            bottom: -100px; 
+        }
+        .heart::before, .heart::after {
+            content: ""; position: absolute; width: 100%; height: 100%; background-color: inherit; border-radius: 50%;
+        }
+        .heart::before { top: -50%; left: 0; }
+        .heart::after { left: -50%; top: 0; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(45deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(45deg); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 id="dayTitle">Loading...</h1>
+
+        <div id="lockedArea">
+            <div style="font-size: 5rem; margin-bottom: 20px;">🎁</div>
+            <p style="margin-bottom: 20px;">A new surprise is waiting for you!</p>
+            <button class="btn" id="openBtn" onclick="revealSurprise()">Open Today's Gift</button>
+        </div>
+
+        <div id="contentArea">
+            <div id="mainIcon" class="emoji-icon">❤️</div>
+
+            <div class="message-box" id="dailyMessage">
+                Checking the date...
+            </div>
+
+            <div class="letter-box" id="finalLetter">
+                When you came into my life, I didn’t realize how deeply you would change my heart. 
+                Your love feels gentle, safe, and real in a way I never knew I needed. 
+                <br><br>
+                Every time I think of you, I feel grateful—grateful for your presence, your care, 
+                and the quiet understanding we share. Being with you feels natural, like my heart 
+                finally found where it belongs. 
+                <br><br>
+                I’m so lucky to love you and even luckier to be loved by you.
+                <br><br>
+                <b>I Love You! ❤️</b>
+            </div>
+
+            <div class="btn-group" id="valentineButtons">
+                <button class="btn-yes" id="yesBtn" onclick="acceptLove()">Yes</button>
+                <button class="btn-no" id="noBtn" onclick="handleNoClick()">No</button>
+            </div>
+
+            <button class="btn" id="readLetterBtn" onclick="showLetter()">Read My Letter 💌</button>
+        </div>
+
+        <div class="timer-box" id="timer">
+            Next surprise unlocks in: <br> <b id="countdown">00:00:00</b>
+        </div>
+
+    </div>
+
+    <script>
+        let currentThemeColor = "#ff4757"; 
+        
+        let noClickCount = 0;
+        const sizes = [1.2, 1.6, 2.2, 3.0, 4.0, 5.5]; 
+        const noMessages = ["No", "Are you sure?", "Really sure?", "Please?", "Don't do this!", "I'm crying...", "You're breaking my heart!"];
+
+        const valentineWeek = [
+            { date: 7, title: "Happy Rose Day! 🌹", icon: "🌹", btnText: "Open Rose Gift", color: "#ff3333", msg: "A rose for the most beautiful girl in the world. Just like this rose, my love for you blooms more every day." },
+            { date: 8, title: "Happy Propose Day! 💍", icon: "💑", btnText: "Open Propose Gift", color: "#fd79a8", msg: "I don't need a special date to say this, but today I want to tell you: You are the only one I want, forever." },
+            { date: 9, title: "Happy Chocolate Day! 🍫", icon: "🍫", btnText: "Open Sweet Gift", color: "#8c5e3c", msg: "You are sweeter than any chocolate in the world. Thank you for adding so much sweetness to my life!" }, 
+            { date: 10, title: "Happy Teddy Day! 🧸", icon: "🧸", btnText: "Open Teddy Gift", color: "#ffa502", msg: "Sending you a big virtual bear hug! Whenever you feel lonely, just remember I'm always holding you in my heart." }, 
+            { date: 11, title: "Happy Promise Day! 🤞", icon: "🤝", btnText: "Open Promise Gift", color: "#74b9ff", msg: "I promise to always be your biggest supporter, your best friend, and your safe place. I promise to love you, always." }, 
+            { date: 12, title: "Happy Hug Day! 🤗", icon: "🫂", btnText: "Open Hug Gift", color: "#ff9f43", msg: "You have this special way of making everything feel okay. Just knowing you are there is the greatest comfort I could ask for." },
+            { date: 13, title: "Happy Smile Day! 🥰", icon: "🥰", btnText: "Open Smile Gift", color: "#e84393", msg: "Your smile is the most beautiful thing in the world to me. Sending you all my love today just to see you smile." }, 
+            { date: 14, title: "Will you be my Valentine? 🌹", icon: "👩‍❤️‍👨", btnText: "Open Final Gift", color: "#d63031", msg: "I have waited so long to ask you this..." } 
+        ];
+
+        let currentDayData = null;
+
+        function checkDate() {
+            const now = new Date();
+            let currentDay = now.getDate();
+            let currentMonth = now.getMonth() + 1; 
+
+            // ⚠️ DEBUG MODE (Uncomment to test)
+            // currentDay = 14; currentMonth = 2; 
+
+            const dayTitle = document.getElementById('dayTitle');
+            const lockedArea = document.getElementById('lockedArea');
+            const contentArea = document.getElementById('contentArea');
+            const openBtn = document.getElementById('openBtn');
+            const timerBox = document.getElementById('timer');
+
+            // 1. BEFORE Feb 7
+            if (currentMonth === 2 && currentDay < 7) {
+                dayTitle.innerText = "Coming Soon...";
+                lockedArea.innerHTML = "<div style='font-size:3rem'>⏳</div><p>Wait for Feb 7th!</p>";
+                startCountdown(7);
+                timerBox.style.opacity = 1; 
+                return;
+            }
+
+            // 2. AFTER Feb 14
+            if (currentMonth > 2 || (currentMonth === 2 && currentDay > 14)) {
+                dayTitle.innerText = "Love You Forever! ❤️";
+                lockedArea.style.display = 'none';
+                contentArea.style.display = 'flex';
+                document.getElementById('dailyMessage').innerText = "Valentine's week is over, but my love for you continues every single day.";
+                document.getElementById('mainIcon').innerText = "💑";
+                timerBox.style.display = 'none'; 
+                return;
+            }
+
+            // 3. DURING WEEK (Feb 7-14)
+            currentDayData = valentineWeek.find(d => d.date === currentDay);
+
+            if (currentDayData) {
+                dayTitle.innerText = currentDayData.title;
+                openBtn.innerText = currentDayData.btnText;
+                document.getElementById('mainIcon').innerText = currentDayData.icon;
+                document.getElementById('dailyMessage').innerText = currentDayData.msg;
+
+                if (currentDay !== 14) {
+                    startCountdown(currentDay + 1);
+                }
+            }
+        }
+
+        function revealSurprise() {
+            const lockedArea = document.getElementById('lockedArea');
+            const contentArea = document.getElementById('contentArea');
+            const valentineButtons = document.getElementById('valentineButtons');
+            const timerBox = document.getElementById('timer');
+
+            lockedArea.style.display = 'none';
+            contentArea.style.display = 'flex';
+
+            if (currentDayData && currentDayData.color) {
+                currentThemeColor = currentDayData.color;
+            }
+
+            const now = new Date();
+            let currentDay = now.getDate();
+
+            // ⚠️ DEBUG MODE (Uncomment to test)
+            // currentDay = 14; 
+
+            if (currentDay === 14) {
+                timerBox.style.display = "none"; 
+                valentineButtons.style.display = "flex"; 
+            } 
+            else {
+                createHeartExplosion(); 
+                setTimeout(() => { timerBox.style.opacity = "1"; }, 1000); 
+            }
+        }
+
+        // ---------------------------------------------------------
+        //  FIXED NO BUTTON LOGIC (STAYS INSIDE BOX)
+        // ---------------------------------------------------------
+        function handleNoClick() {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            
+            noClickCount++;
+
+            // 1. Change Text
+            if (noClickCount < noMessages.length) {
+                noBtn.innerText = noMessages[noClickCount];
+            }
+
+            // 2. Increase YES Button Size
+            if (noClickCount < sizes.length) {
+                yesBtn.style.fontSize = sizes[noClickCount] + 'rem';
+            }
+
+            // 3. Runaway Mode (After 5 clicks)
+            if (noClickCount >= 5) {
+                noBtn.innerText = "Please say yes..🥺";
+                noBtn.style.backgroundColor = "#444"; 
+                noBtn.addEventListener('mouseover', moveNoButton);
+                moveNoButton();
+            }
+        }
+
+        function moveNoButton() {
+            const noBtn = document.getElementById('noBtn');
+            const container = document.querySelector('.container'); // Use the box, not window
+            
+            // 1. Set Absolute Position (Stays inside relative container)
+            noBtn.style.position = 'absolute';
+            noBtn.style.zIndex = "1000"; 
+            
+            // 2. Calculate Box Dimensions
+            // Subtract button size and 20px padding so it doesn't touch edges
+            const maxX = container.clientWidth - noBtn.offsetWidth - 20;
+            const maxY = container.clientHeight - noBtn.offsetHeight - 20;
+            
+            // 3. Generate Random Coordinates within the Box
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            // 4. Apply New Position
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+        }
+
+        // ---------------------------------------------------------
+
+        function acceptLove() {
+            const valentineButtons = document.getElementById('valentineButtons');
+            const dailyMessage = document.getElementById('dailyMessage');
+            const mainIcon = document.getElementById('mainIcon');
+            const dayTitle = document.getElementById('dayTitle');
+            const readLetterBtn = document.getElementById('readLetterBtn');
+
+            valentineButtons.style.display = 'none';
+
+            dayTitle.innerText = "Happy Valentine's Day! ❤️";
+            mainIcon.innerText = "💘";
+            dailyMessage.style.fontWeight = "normal"; 
+            dailyMessage.innerHTML = "You are my everything. Will you be my Valentine forever?";
+            
+            readLetterBtn.style.display = "inline-block";
+
+            currentThemeColor = "#d63031";
+            createHeartExplosion();
+        }
+
+        function showLetter() {
+            document.getElementById('dailyMessage').style.display = 'none';
+            document.getElementById('mainIcon').style.display = 'none';
+            document.getElementById('readLetterBtn').style.display = 'none';
+            document.getElementById('finalLetter').style.display = 'block';
+            createHeartExplosion();
+        }
+
+        function createHeart(forceVisible = false) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.backgroundColor = currentThemeColor;
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 3 + 4 + "s";
+            const size = Math.random() * 15 + 10;
+            heart.style.width = size + "px";
+            heart.style.height = size + "px";
+            if (forceVisible) {
+                heart.style.bottom = Math.random() * 100 + "vh"; 
+                heart.style.animationDelay = "0s"; 
+            }
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 7000);
+        }
+
+        setInterval(() => createHeart(false), 300);
+        for(let i=0; i<20; i++) { createHeart(true); }
+
+        function createHeartExplosion() {
+            for (let i = 0; i < 60; i++) { setTimeout(() => createHeart(false), i * 20); }
+        }
+
+        function startCountdown(targetDay) {
+            const countdownEl = document.getElementById('countdown');
+            const interval = setInterval(() => {
+                const now = new Date();
+                const targetDate = new Date(now.getFullYear(), 1, targetDay, 0, 0, 0);
+                const diff = targetDate - now;
+                if (diff <= 0) {
+                    clearInterval(interval);
+                    location.reload();
+                } else {
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    countdownEl.innerText = `${hours}h ${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+        }
+
+        checkDate();
+
+    </script>
+</body>
+</html>
