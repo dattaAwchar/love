@@ -151,7 +151,7 @@
         /* HEARTS */
         .heart {
             position: absolute;
-            background-color: #ff47c2; 
+            background-color: #ff4757; 
             width: 20px;
             height: 20px;
             transform: rotate(45deg);
@@ -176,7 +176,7 @@
 <body>
 
     <div class="container">
-        <h1 id="dayTitle">Loading...</h1>
+        <h1 id="dayTitle">Syncing Time...</h1>
 
         <div id="lockedArea">
             <div style="font-size: 5rem; margin-bottom: 20px;">🎁</div>
@@ -232,14 +232,50 @@
             { date: 10, title: "Happy Teddy Day! 🧸", icon: "🧸", btnText: "Open Teddy Gift", color: "#ffa502", msg: "Sending you a big virtual bear hug! Whenever you feel lonely, just remember I'm always holding you in my heart." }, 
             { date: 11, title: "Happy Promise Day! 🤞", icon: "🤝", btnText: "Open Promise Gift", color: "#74b9ff", msg: "I promise to always be your biggest supporter, your best friend, and your safe place. I promise to love you, always." }, 
             { date: 12, title: "Happy Hug Day! 🤗", icon: "🫂", btnText: "Open Hug Gift", color: "#ff9f43", msg: "You have this special way of making everything feel okay. Just knowing you are there is the greatest comfort I could ask for." },
-            { date: 13, title: "Happy Smile Day! 🥰", icon: "🥰", btnText: "Open Smile Gift", color: "#e84393", msg: "Your smile is the most beautiful thing in the world to me. Sending you all my love today just to see you smile." }, 
-            { date: 14, title: "Will you be my Valentine? 🌹", icon: "👩‍❤️‍👨", btnText: "Open Final Gift", color: "#d63031", msg: "I have waited so long to ask you this..." } 
+            { date: 13, title: "Happy Kiss Day! 😘", icon: "😘", btnText: "Open Kiss Gift", color: "#e84393", msg: "Sending you a gentle virtual kiss on your forehead. It’s my silent promise to always care for you, respect you, and be there for you." }, 
+            { date: 14, title: "Will you be my Valentine? 🌹", icon: "❓", btnText: "Open Final Gift", color: "#d63031", msg: "I have waited so long to ask you this..." } 
         ];
 
         let currentDayData = null;
+        let timeOffset = 0; // Store the difference between Device Time and Internet Time
 
+        // ---------------------------------------------------------
+        // NEW: Init Function to Sync Time
+        // ---------------------------------------------------------
+        async function init() {
+            try {
+                // Fetch valid time from WorldTimeAPI
+                const response = await fetch('https://worldtimeapi.org/api/ip');
+                const data = await response.json();
+                const serverTime = new Date(data.datetime);
+                const localTime = new Date();
+                
+                // Calculate offset (Server Time - Device Time)
+                timeOffset = serverTime.getTime() - localTime.getTime();
+                console.log("Time synced! Offset:", timeOffset);
+            } catch (error) {
+                console.log("Time sync failed, using device time.");
+                timeOffset = 0; // Fallback to 0 if offline
+            }
+            
+            // Start the App Logic
+            checkDate();
+            
+            // Start background animations
+            setInterval(() => createHeart(false), 300);
+            for(let i=0; i<20; i++) { createHeart(true); }
+        }
+
+        // Helper to get the REAL current time
+        function getNow() {
+            return new Date(Date.now() + timeOffset);
+        }
+
+        // ---------------------------------------------------------
+        // LOGIC: Check Date
+        // ---------------------------------------------------------
         function checkDate() {
-            const now = new Date();
+            const now = getNow(); // Use Synced Time
             let currentDay = now.getDate();
             let currentMonth = now.getMonth() + 1; 
 
@@ -300,7 +336,7 @@
                 currentThemeColor = currentDayData.color;
             }
 
-            const now = new Date();
+            const now = getNow(); // Use Synced Time
             let currentDay = now.getDate();
 
             // ⚠️ DEBUG MODE (Uncomment to test)
@@ -317,27 +353,21 @@
         }
 
         // ---------------------------------------------------------
-        //  FIXED NO BUTTON LOGIC (STAYS INSIDE BOX)
+        //  NO BUTTON LOGIC
         // ---------------------------------------------------------
         function handleNoClick() {
             const noBtn = document.getElementById('noBtn');
             const yesBtn = document.getElementById('yesBtn');
-            
             noClickCount++;
 
-            // 1. Change Text
             if (noClickCount < noMessages.length) {
                 noBtn.innerText = noMessages[noClickCount];
             }
-
-            // 2. Increase YES Button Size
             if (noClickCount < sizes.length) {
                 yesBtn.style.fontSize = sizes[noClickCount] + 'rem';
             }
-
-            // 3. Runaway Mode (After 5 clicks)
             if (noClickCount >= 5) {
-                noBtn.innerText = "Please say yes..🥺";
+                noBtn.innerText = "Catch me!";
                 noBtn.style.backgroundColor = "#444"; 
                 noBtn.addEventListener('mouseover', moveNoButton);
                 moveNoButton();
@@ -346,28 +376,23 @@
 
         function moveNoButton() {
             const noBtn = document.getElementById('noBtn');
-            const container = document.querySelector('.container'); // Use the box, not window
+            const container = document.querySelector('.container'); 
             
-            // 1. Set Absolute Position (Stays inside relative container)
             noBtn.style.position = 'absolute';
             noBtn.style.zIndex = "1000"; 
             
-            // 2. Calculate Box Dimensions
-            // Subtract button size and 20px padding so it doesn't touch edges
             const maxX = container.clientWidth - noBtn.offsetWidth - 20;
             const maxY = container.clientHeight - noBtn.offsetHeight - 20;
             
-            // 3. Generate Random Coordinates within the Box
             const randomX = Math.random() * maxX;
             const randomY = Math.random() * maxY;
 
-            // 4. Apply New Position
             noBtn.style.left = `${randomX}px`;
             noBtn.style.top = `${randomY}px`;
         }
 
         // ---------------------------------------------------------
-
+        
         function acceptLove() {
             const valentineButtons = document.getElementById('valentineButtons');
             const dailyMessage = document.getElementById('dailyMessage');
@@ -413,9 +438,6 @@
             setTimeout(() => { heart.remove(); }, 7000);
         }
 
-        setInterval(() => createHeart(false), 300);
-        for(let i=0; i<20; i++) { createHeart(true); }
-
         function createHeartExplosion() {
             for (let i = 0; i < 60; i++) { setTimeout(() => createHeart(false), i * 20); }
         }
@@ -423,7 +445,7 @@
         function startCountdown(targetDay) {
             const countdownEl = document.getElementById('countdown');
             const interval = setInterval(() => {
-                const now = new Date();
+                const now = getNow(); // Use Synced Time
                 const targetDate = new Date(now.getFullYear(), 1, targetDay, 0, 0, 0);
                 const diff = targetDate - now;
                 if (diff <= 0) {
@@ -438,7 +460,8 @@
             }, 1000);
         }
 
-        checkDate();
+        // Start init instead of checkDate
+        init();
 
     </script>
 </body>
